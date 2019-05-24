@@ -279,35 +279,35 @@ export default {
     },
 
     hflip(e) {
-      let canvas = this.$refs.canvas
+      let canvas = this.$refs.canvas1
       const viewport = cornerstone.getViewport(canvas);
       viewport.hflip = !viewport.hflip;
       cornerstone.setViewport(canvas, viewport);
     },
 
     vflip(e) {
-      let canvas = this.$refs.canvas
+      let canvas = this.$refs.canvas1
       const viewport = cornerstone.getViewport(canvas);
       viewport.vflip = !viewport.vflip;
       cornerstone.setViewport(canvas, viewport);
     },
 
     lRotate(e) {
-      let canvas = this.$refs.canvas
+      let canvas = this.$refs.canvas1
       const viewport = cornerstone.getViewport(canvas);
       viewport.rotation -= 90;
       cornerstone.setViewport(canvas, viewport);
     },
 
     rRotate(e) {
-      let canvas = this.$refs.canvas
+      let canvas = this.$refs.canvas1
       const viewport = cornerstone.getViewport(canvas);
       viewport.rotation += 90;
       cornerstone.setViewport(canvas, viewport);
     },
 
     reset(e) {
-      let canvas = this.$refs.canvas
+      let canvas = this.$refs.canvas1
       cornerstone.reset(canvas);
     },
 
