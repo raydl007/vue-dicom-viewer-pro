@@ -65,17 +65,9 @@
         <img src="../assets/1.png">
         <h4>操作</h4>
       </div>
-      <div>
-        <img src="../assets/1.png">
-        <h4>操作</h4>
-      </div>
-      <div>
-        <img src="../assets/1.png">
-        <h4>操作</h4>
-      </div>
-      <div>
-        <img src="../assets/1.png">
-        <h4>操作</h4>
+      <div class="block slider-bar">
+        <span class="demonstration"></span>
+        <el-slider v-model="value1" :format-tooltip="formatTooltip"></el-slider>
       </div>
     </div>
 
@@ -429,7 +421,7 @@ export default {
     color white
     line-height 40px
     font-size 18px
-    width 200px
+    width 240px
     height 40px
     margin 5px 16px 5px 50px
     border-right 1px solid white
@@ -478,4 +470,7 @@ export default {
   width 50vw
   height 80vh
   background lightgrey
+.slider-bar
+  width 200px
+  height 32px
 </style>
