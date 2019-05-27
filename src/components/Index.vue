@@ -249,7 +249,7 @@ export default {
             cornerstoneTools.mouseWheelInput.enable(canvas);
             // cornerstoneTools.length.activate(canvas,1); 
             // cornerstoneTools.probe.activate(canvas,1); 
-            // cornerstoneTools.wwwc.activate(canvas, 1); // Left Click
+            cornerstoneTools.wwwc.activate(canvas, 1); // Left Click
             cornerstoneTools.pan.activate(canvas, 2); // Middle Click
             cornerstoneTools.zoom.activate(canvas, 4); // Right Click
             cornerstoneTools.zoomWheel.activate(canvas); // Mouse Wheel
