@@ -37,38 +37,40 @@
         <img src="../assets/1.png">
         <h4>3D</h4>
       </div>
-      <div>
+      <div @click="getLength">
         <img src="../assets/1.png">
-        <h4>操作</h4>
+        <h4>测距</h4>
       </div>
-      <div>
+      <div @click="probe">
         <img src="../assets/1.png">
-        <h4>操作</h4>
+        <h4>探针</h4>
       </div>
-      <div>
+      <div @click="arrowAnnotation">
         <img src="../assets/1.png">
-        <h4>操作</h4>
+        <h4>箭头注释</h4>
       </div>
-      <div>
+      <div @click="angle">
         <img src="../assets/1.png">
-        <h4>操作</h4>
+        <h4>角度工具</h4>
       </div>
-      <div>
+      <div @click="freeHand">
         <img src="../assets/1.png">
-        <h4>操作</h4>
+        <h4>鼠标工具</h4>
       </div>
-      <div>
+      <div @click="ellipticalRoi">
         <img src="../assets/1.png">
-        <h4>操作</h4>
+        <h4>椭圆工具</h4>
       </div>
-      <div>
+      <div @click="rectangleRoi">
         <img src="../assets/1.png">
-        <h4>操作</h4>
+        <h4>矩形工具</h4>
       </div>
-      <div class="block slider-bar">
+
+      <!-- <div class="block slider-bar">
         <span class="demonstration"></span>
         <el-slider v-model="value1" :format-tooltip="formatTooltip"></el-slider>
-      </div>
+      </div> -->
+
     </div>
 
     <div
@@ -96,12 +98,12 @@
         <div
           id="topright"
           class="overlay"
-          style="position:absolute;top:0px;right:51vw"
+          style="position:absolute;top:0px;right:1vw"
         >渲染时间：{{renderTime}}</div>
         <div
           id="bottomright"
           class="overlay"
-          style="position:absolute;bottom:0px;right:51vw"
+          style="position:absolute;bottom:0px;right:1vw"
         >缩放：{{zoom}}</div>
         <div
           id="bottomleft"
@@ -109,12 +111,12 @@
           style="position:absolute;bottom:0px;left:1vw"
         >WW/WC:{{ratio}}</div>
       </div>
-      <div
+      <!-- <div
         ref="canvas2"
         class="image-canvas-right"
         oncontextmenu="return false"
         @cornerstoneimagerendered="onImageRendered"
-      ></div>
+      ></div> -->
     </div>
 
     <br>
@@ -195,24 +197,24 @@ export default {
       const eventData = e.detail;
       cornerstone.setToPixelCoordinateSystem(eventData.enabledElement, eventData.canvasContext);
 
-      const context = eventData.canvasContext;
-      context.beginPath();
-      context.strokeStyle = 'yellow';
-      context.lineWidth = .5;
-      context.rect(128, 90, 150, 60);
-      context.stroke();
-      context.fillStyle = "orange";
-      context.font = "8px";
-      context.fillText("canvas标注测试", 128, 85);
+      // const context = eventData.canvasContext;
+      // context.beginPath();
+      // context.strokeStyle = 'yellow';
+      // context.lineWidth = .5;
+      // context.rect(128, 90, 150, 60);
+      // context.stroke();
+      // context.fillStyle = "orange";
+      // context.font = "8px";
+      // context.fillText("canvas标注测试", 128, 85);
 
-      context.beginPath();
-      context.arc(256, 256, 80, 0, 2 * Math.PI, false);
-      context.fillStyle = 'lightblue';
-      context.lineWidth = 1;
-      context.font = "8px";
-      context.fillText("canvas标注测试", 136, 185);
-      context.strokeStyle = 'red';
-      context.stroke();
+      // context.beginPath();
+      // context.arc(256, 256, 80, 0, 2 * Math.PI, false);
+      // context.fillStyle = 'lightblue';
+      // context.lineWidth = 1;
+      // context.font = "8px";
+      // context.fillText("canvas标注测试", 136, 185);
+      // context.strokeStyle = 'red';
+      // context.stroke();
 
       this.renderTime = eventData.renderTimeInMs + " ms";
       this.zoom = eventData.viewport.scale.toFixed(2);
@@ -230,6 +232,8 @@ export default {
         cornerstone.loadAndCacheImage(url).then(
           function (image) {
             console.log(image);
+            console.log(image.getPixelData())
+             image.rgba = true
 
             // 设置元素视口
             var viewport = cornerstone.getDefaultViewportForImage(
@@ -237,15 +241,24 @@ export default {
               image
             );
             // 显示图像
+
+            console.log(cornerstoneTools)
+
             cornerstone.displayImage(canvas, image, viewport);
             cornerstoneTools.mouseInput.enable(canvas);
             cornerstoneTools.mouseWheelInput.enable(canvas);
-            cornerstoneTools.wwwc.activate(canvas, 1); // Left Click
+            // cornerstoneTools.length.activate(canvas,1); 
+            // cornerstoneTools.probe.activate(canvas,1); 
+            // cornerstoneTools.wwwc.activate(canvas, 1); // Left Click
             cornerstoneTools.pan.activate(canvas, 2); // Middle Click
             cornerstoneTools.zoom.activate(canvas, 4); // Right Click
             cornerstoneTools.zoomWheel.activate(canvas); // Mouse Wheel
             // 激活工具
             _this.initCanvasTools();
+
+            // const LengthTool = cornerstoneTools.LengthTool;
+            // cornerstoneTools.addTool(LengthTool)
+            // cornerstoneTools.setToolActive('Length', { mouseButtonMask: 1 })
 
             // const ProbeTool = cornerstoneTools.ProbeTool;
             // cornerstoneTools.addTool(ProbeTool)
@@ -298,6 +311,55 @@ export default {
       cornerstone.setViewport(canvas, viewport);
     },
 
+    getLength(e) {
+      let canvas = this.$refs.canvas1
+      const viewport = cornerstone.getViewport(canvas);
+      cornerstoneTools.length.activate(canvas,1); 
+      cornerstone.setViewport(canvas, viewport);
+    },
+
+    probe(e) {
+      let canvas = this.$refs.canvas1
+      const viewport = cornerstone.getViewport(canvas);
+      cornerstoneTools.probe.activate(canvas,1); 
+      cornerstone.setViewport(canvas, viewport);
+    },
+
+    arrowAnnotation(e) {
+      let canvas = this.$refs.canvas1
+      const viewport = cornerstone.getViewport(canvas);
+      cornerstoneTools.arrowAnnotate.activate(canvas,1); 
+      cornerstone.setViewport(canvas, viewport);
+    },
+
+    angle(e) {
+      let canvas = this.$refs.canvas1
+      const viewport = cornerstone.getViewport(canvas);
+      cornerstoneTools.angle.activate(canvas,1); 
+      cornerstone.setViewport(canvas, viewport);
+    },
+
+    freeHand(e) {
+      let canvas = this.$refs.canvas1
+      const viewport = cornerstone.getViewport(canvas);
+      cornerstoneTools.freehand.activate(canvas,1); 
+      cornerstone.setViewport(canvas, viewport);
+    },
+
+    ellipticalRoi(e) {
+      let canvas = this.$refs.canvas1
+      const viewport = cornerstone.getViewport(canvas);
+      cornerstoneTools.ellipticalRoi.activate(canvas,1); 
+      cornerstone.setViewport(canvas, viewport);
+    },
+
+    rectangleRoi(e) {
+      let canvas = this.$refs.canvas1
+      const viewport = cornerstone.getViewport(canvas);
+      cornerstoneTools.rectangleRoi.activate(canvas,1); 
+      cornerstone.setViewport(canvas, viewport);
+    },
+
     reset(e) {
       let canvas = this.$refs.canvas1
       cornerstone.reset(canvas);
@@ -339,7 +401,7 @@ export default {
       // cornerstoneTools.stackScrollWheel.activate(canvas); // Mouse wheel
       // cornerstoneTools.scrollIndicator.enable(canvas); // Position indicator
 
-      // // Mouse
+      // Mouse
       // cornerstoneTools.wwwc.activate(canvas, 1); // left click
       // cornerstoneTools.pan.activate(canvas, 2); // middle click
       // cornerstoneTools.zoom.activate(canvas, 4); // right click
@@ -461,13 +523,13 @@ export default {
   color orange
   display flex
   .image-canvas
-    width 50vw
+    width 100vw
     height 80vh
     top 0px
     left 0px
     // border 4px dashed green
 .image-canvas-right
-  width 50vw
+  width 100vw
   height 80vh
   background lightgrey
 .slider-bar
