@@ -87,7 +87,7 @@
 
     <div ref="canvas1" class="image-canvas" oncontextmenu="return false" @click="showAxes"></div>
 
-    <div ref="canvas2" class="mask-canvas" oncontextmenu="return false" @click="renderCanvas"></div>
+    <div ref="canvas2" class="mask-canvas" oncontextmenu="return false"></div>
 
     <!-- <div
         id="topleft"
@@ -183,6 +183,9 @@ export default {
       num: '',
       result: [],
       currentGrayLevel: -1,
+      low: 100,
+      high: 100,
+      currentLine: 0
     };
   },
   watch: {
@@ -212,128 +215,80 @@ export default {
     showAxes(e) {
       this.result = []
       this.currentGrayLevel = -1
+      this.currentLine = 0
+      console.log("start: " + this.result.length)
       this.showAxesTemp(e)
-      console.log(this.result)
-      let indexArr = new Array(230399)
-      for (let i = 0; i < 230399; i++) {
-        if (this.result.indexOf(i) == -1) {
-          indexArr[i] = 255
-        } else {
-          indexArr[i] = 0
-        }
-      }
-      localStorage.setItem('result', indexArr)
-      this.showMask(1)
+      console.log("end : " + this.result.length)
+      this.showMask(56)
     },
 
-    showAxesTemp(e, index) {
+    showAxesTemp(e) {
+      let canvas = this.$refs.canvas1
+      let x = e.clientX - canvas.getBoundingClientRect().left
+      let y = e.clientY - canvas.getBoundingClientRect().top
+      let index = x + y * 480
+      this.currentGrayLevel = this.imageData[index]
+      console.log("currentGrayLevel : " + this.currentGrayLevel)
+      this.result.push(index)
 
-      let canvas
-      let canvasX
-      let canvasY
+      //计算上边点
+      this.showAxesTop(e, x, y - 1)
+      //计算下边点
+      this.showAxesBottom(e, x, y + 1)
+      //计算左边点
+      this.showAxesLeft(e, x - 1, y)
+      //计算右边点
+      this.showAxesRight(e, x + 1, y)
+    },
 
-      if (index != undefined) {
-        canvasX = index % 480
-        canvasY = parseInt(index / 480)
-      } else {
-        canvas = this.$refs.canvas1
-        canvasX = e.clientX - canvas.getBoundingClientRect().left
-        canvasY = e.clientY - canvas.getBoundingClientRect().top
-        index = canvasX + canvasY * 480
-      }
-
-      let low = 75
-      let high = 25
-
-      // console.log(index)
-      //console.log("当前点击的像素索引值：" + index)
-      // console.log("该像素点的灰度值：" + this.imageData[index])
-      if (index >= 0 && index < 480 * 480) {
-        if (this.currentGrayLevel == -1) {
-          this.currentGrayLevel = this.imageData[index]
+    showAxesLeft(e, x, y) {
+      if (x >= 0) {
+        let index = x + y * 480
+        let currentGrayLevelTemp = this.imageData[index]
+        if (currentGrayLevelTemp >= this.currentGrayLevel - this.low && currentGrayLevelTemp <= this.currentGrayLevel + this.high) {
           this.result.push(index)
+          this.showAxesTop(e, x, y - 1)
+          this.showAxesBottom(e, x, y + 1)
+          this.showAxesLeft(e, x - 1, y)
         } else {
-          if (this.imageData[index] >= this.currentGrayLevel - low && this.imageData[index] <= this.currentGrayLevel + high) {
-            this.result.push(index)
-          }
+          console.log("tempGrayLevel : " + currentGrayLevelTemp)
         }
-
-        //计算左边点
-        let tempIndex = index - 1
-        if (tempIndex >= 0 && tempIndex < 480 * 480) {
-          if (this.result.indexOf(tempIndex) == -1) {
-            if (this.imageData[tempIndex] >= this.currentGrayLevel - low && this.imageData[tempIndex] <= this.currentGrayLevel + high) {
-              this.result.push(tempIndex)
-              // this.showAxesTemp(e, tempIndex)
-            }
-          }
-        }
-
-        //计算右边点
-        tempIndex = index + 1
-        if (tempIndex >= 0 && tempIndex < 480 * 480) {
-
-          // for (let i = 0; i < this.result.length; i++) {
-          //   if (this.result[i] === tempIndex) {
-          //     if (this.imageData[tempIndex] >= this.currentGrayLevel - low && this.imageData[tempIndex] <= this.currentGrayLevel + high) {
-          //       this.result.push(tempIndex)
-          //       this.showAxesTemp(e, tempIndex)
-          //     }
-          //   }
-          // }
-
-          if (this.result.indexOf(tempIndex) == -1) {
-            if (this.imageData[tempIndex] >= this.currentGrayLevel - low && this.imageData[tempIndex] <= this.currentGrayLevel + high) {
-              this.result.push(tempIndex)
-              this.showAxesTemp(e, tempIndex)
-            }
-          }
-
-        }
-
-        //计算上边点
-        tempIndex = canvasX + (canvasY - 1) * 480
-        if (tempIndex >= 0 && tempIndex < 480 * 480) {
-
-          // for (let i = 0; i < this.result.length; i++) {
-          //   if (this.result[i] === tempIndex) {
-          //     if (this.imageData[tempIndex] >= this.currentGrayLevel - low && this.imageData[tempIndex] <= this.currentGrayLevel + high) {
-          //       this.result.push(tempIndex)
-          //       this.showAxesTemp(e, tempIndex)
-          //     }
-          //   }
-          // }
-
-          if (this.result.indexOf(tempIndex) == -1) {
-            if (this.imageData[tempIndex] >= this.currentGrayLevel - low && this.imageData[tempIndex] <= this.currentGrayLevel + high) {
-              this.result.push(tempIndex)
-              // this.showAxesTemp(e, tempIndex)
-            }
-          }
-
-        }
-
-        //计算下边点
-        tempIndex = canvasX + (canvasY + 1) * 480
-        if (tempIndex >= 0 && tempIndex < 480 * 480) {
-          if (this.result.indexOf(tempIndex) == -1) {
-            if (this.imageData[tempIndex] >= this.currentGrayLevel - low && this.imageData[tempIndex] <= this.currentGrayLevel + high) {
-              this.result.push(tempIndex)
-              this.showAxesTemp(e, tempIndex)
-            }
-          }
-        }
-        //this.showAxesTemp(e, tempIndex)
       }
+    },
 
+    showAxesRight(e, x, y) {
+      if (x < 480) {
+        let index = x + y * 480
+        let currentGrayLevelTemp = this.imageData[index]
+        if (currentGrayLevelTemp >= this.currentGrayLevel - this.low && currentGrayLevelTemp <= this.currentGrayLevel + this.high) {
+          this.result.push(index)
+          this.showAxesTop(e, x, y - 1)
+          this.showAxesBottom(e, x, y + 1)
+          this.showAxesRight(e, x + 1, y)
+        }
+      }
+    },
 
-      // console.log("top灰度值：" + _this.imageData[topIndex])
-      // console.log("bottom灰度值：" + _this.imageData[bottomIndex])
-      // console.log("left灰度值：" + _this.imageData[leftIndex])
-      // console.log("right灰度值：" + _this.imageData[rightIndex])
+    showAxesTop(e, x, y) {
+      if (y >= 0) {
+        let index = x + y * 480
+        let currentGrayLevelTemp = this.imageData[index]
+        if (currentGrayLevelTemp >= this.currentGrayLevel - this.low && currentGrayLevelTemp <= this.currentGrayLevel + this.high) {
+          this.result.push(index)
+          this.showAxesTop(e, x, y - 1)
+        }
+      }
+    },
 
-
-
+    showAxesBottom(e, x, y) {
+      if (y < 480) {
+        let index = x + y * 480
+        let currentGrayLevelTemp = this.imageData[index]
+        if (currentGrayLevelTemp >= this.currentGrayLevel - this.low && currentGrayLevelTemp <= this.currentGrayLevel + this.high) {
+          this.result.push(index)
+          this.showAxesBottom(e, x, y + 1)
+        }
+      }
     },
 
     renderCanvas(e) {
@@ -370,6 +325,7 @@ export default {
             // console.log(image)
             // console.log(image.getPixelData())
             let imageData = image.getPixelData()
+            console.log(imageData.length)
             _this.imageData = imageData
             // console.log(_this.imageData)
             // console.log(_this.imageData[_this.imageDataIndex])
@@ -397,8 +353,8 @@ export default {
             cornerstone.displayImage(canvas, image, viewport);
             cornerstoneTools.mouseInput.enable(canvas);
             cornerstoneTools.mouseWheelInput.enable(canvas);
-            // cornerstoneTools.length.activate(canvas,1); 
-            // cornerstoneTools.probe.activate(canvas,1); 
+            // cornerstoneTools.length.activate(canvas,1);
+            // cornerstoneTools.probe.activate(canvas,1);
             cornerstoneTools.wwwc.activate(canvas, 1); // Left Click
             cornerstoneTools.pan.activate(canvas, 2); // Middle Click
             cornerstoneTools.zoom.activate(canvas, 4); // Right Click
@@ -429,40 +385,38 @@ export default {
     showMask(num) {
       const _this = this;
       var url = 'wadouri:\\static\\dcm\\' + num + '.DCM'
-      if (this.isShow === true) {
-        let canvas = this.$refs.canvas2
-        cornerstone.enable(canvas)
-        cornerstone.loadAndCacheImage(url).then(
-          function (image) {
-            let imageData = image.getPixelData()
-            _this.imageData = imageData
-            if (localStorage.getItem('result') != null) {
-              let indexArr = localStorage.getItem('result').split(",")
-              if (indexArr.length) {
-                for (let i in indexArr) {
-                  _this.imageData[i] = indexArr[i]
-                }
-              }
-            }
-            // 设置元素视口
-            var viewport = cornerstone.getDefaultViewportForImage(
-              canvas,
-              image
-            );
-            // 显示图像
-            cornerstone.displayImage(canvas, image, viewport);
-            cornerstoneTools.mouseInput.enable(canvas);
-            cornerstoneTools.mouseWheelInput.enable(canvas);
-            cornerstoneTools.wwwc.activate(canvas, 1); // Left Click
-            cornerstoneTools.pan.activate(canvas, 2); // Middle Click
-            cornerstoneTools.zoom.activate(canvas, 4); // Right Click
-            cornerstoneTools.zoomWheel.activate(canvas); // Mouse Wheel
-          },
-          function (err) {
-            console.log('加载错误', err)
+      console.log(url)
+      let canvas = this.$refs.canvas2
+      cornerstone.enable(canvas)
+      cornerstone.loadImage(url).then(
+        function (image) {
+          let imageData = image.getPixelData()
+
+          for (let i = 0; i < imageData.length; i++) {
+            imageData[i] = 0
           }
-        );
-      }
+
+          for (let i = 0; i < _this.result.length; i++) {
+            imageData[_this.result[i]] = 255
+          }
+          // 设置元素视口
+          var viewport = cornerstone.getDefaultViewportForImage(
+            canvas,
+            image
+          );
+          // 显示图像
+          cornerstone.displayImage(canvas, image, viewport);
+          cornerstoneTools.mouseInput.enable(canvas);
+          cornerstoneTools.mouseWheelInput.enable(canvas);
+          cornerstoneTools.wwwc.activate(canvas, 1); // Left Click
+          cornerstoneTools.pan.activate(canvas, 2); // Middle Click
+          cornerstoneTools.zoom.activate(canvas, 4); // Right Click
+          cornerstoneTools.zoomWheel.activate(canvas); // Mouse Wheel
+        },
+        function (err) {
+          console.log('加载错误', err)
+        }
+      );
     },
 
     hflip(e) {
@@ -624,91 +578,84 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="stylus" scoped>
 .top-title
-  width: 100vw
-  height: 50px
-  background: black
-  position: absolute
-  left: 0
-  top: 0
-  display: flex
-  flex-direction: row
+  width 100vw
+  height 50px
+  background black
+  position absolute
+  left 0
+  top 0
+  display flex
+  flex-direction row
   .title-logo
-    position: absolute
-    top: 0
-    left: 0
+    position absolute
+    top 0
+    left 0
     img
-      width: 50px
-      height: 50px
+      width 50px
+      height 50px
   .title-name
-    color: white
-    line-height: 40px
-    font-size: 18px
-    width: 240px
-    height: 40px
-    margin: 5px 16px 5px 50px
-    border-right: 1px solid white
+    color white
+    line-height 40px
+    font-size 18px
+    width 240px
+    height 40px
+    margin 5px 16px 5px 50px
+    border-right 1px solid white
   .patient-list
-    color: lightblue
-    // background red
-    line-height: 42px
-    font-size: 18px
-    width: 100px
-    height: 42px
-    margin: 4px 16px 4px 0px
+    color lightblue
+    line-height 42px
+    font-size 18px
+    width 100px
+    height 42px
+    margin 4px 16px 4px 0px
 .top-tool-bar
-  width: 100vw
-  height: 80px
-  background: black
-  position: absolute
-  left: 0
-  top: 50px
-  padding-top: 10px
-  // padding-left 8px
-  padding-bottom: 10px
-  display: flex
-  flex-direction: row
+  width 100vw
+  height 80px
+  background black
+  position absolute
+  left 0
+  top 50px
+  padding-top 10px
+  padding-bottom 10px
+  display flex
+  flex-direction row
   div
-    margin: 0 24px
-    cursor: pointer
+    margin 0 24px
+    cursor pointer
   h4
-    color: white
-    font-size: 14px
-    line-height: 24px
+    color white
+    font-size 14px
+    line-height 24px
 .image-canvas-wrapper
-  width: 100vw
-  height: 80vh
-  // border 1px solid red
-  position: absolute
-  top: 150px
-  color: orange
-  display: flex
+  width 100vw
+  height 80vh
+  position absolute
+  top 150px
+  color orange
+  display flex
   .image-canvas
-    // width 100vw
-    // height 80vh
-    // top 0px
-    // left 0px
-    border: 4px dashed green !important
+    border 4px dashed green !important
 .image-canvas-right
-  width: 100vw
-  height: 80vh
-  background: lightgrey
+  width 100vw
+  height 80vh
+  background lightgrey
 .slide-bar
-  width: 200px
-  height: 32px
-  position: absolute
-  left: 120px
-  top: 680px
+  width 200px
+  height 32px
+  position absolute
+  left 120px
+  top 680px
 .image-canvas
-  width: 480px
-  height: 480px
-  position: absolute
-  top: 150px
-  border: 4px dashed green
+  width 480px
+  height 480px
+  position absolute
+  top 150px
+  border 4px dashed green
 .mask-canvas
-  width: 480px
-  height: 480px
-  position: absolute
-  top: 150px
-  left: 500px
-  border: 4px dashed blue
+  width 480px
+  height 480px
+  position absolute
+  top 150px
+  left 500px
+  border 4px dashed blue
 </style>
