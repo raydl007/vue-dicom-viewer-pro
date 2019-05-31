@@ -219,7 +219,19 @@ export default {
       console.log("start: " + this.result.length)
       this.showAxesTemp(e)
       console.log("end : " + this.result.length)
-      this.showMask(56)
+
+      this.showMask(this.random())
+    },
+
+    random() {
+      var b = 0;
+        var a = Math.floor(Math.random() * 80);
+        if (a == b) {
+          return random();
+        } else {
+          b = a;
+          return b;
+        }
     },
 
     showAxesTemp(e) {
@@ -321,26 +333,9 @@ export default {
         cornerstone.enable(canvas)
         cornerstone.loadAndCacheImage(url).then(
           function (image) {
-            // console.log('执行加载DICOM')
-            // console.log(image)
-            // console.log(image.getPixelData())
             let imageData = image.getPixelData()
             console.log(imageData.length)
             _this.imageData = imageData
-            // console.log(_this.imageData)
-            // console.log(_this.imageData[_this.imageDataIndex])
-
-            // if (localStorage.getItem('result') != null) {
-            //   let indexArr = localStorage.getItem('result').split(",")
-
-            //   if (indexArr.length) {
-            //     for (let i in indexArr) {
-            //       _this.imageData[i] = indexArr[i]
-            //     }
-            //   }
-            // }
-
-            image.rgba = true
 
             // 设置元素视口
             var viewport = cornerstone.getDefaultViewportForImage(
@@ -390,14 +385,14 @@ export default {
       cornerstone.enable(canvas)
       cornerstone.loadImage(url).then(
         function (image) {
-          let imageData = image.getPixelData()
+          let imageMaskData = image.getPixelData()
 
-          for (let i = 0; i < imageData.length; i++) {
-            imageData[i] = 0
+          for (let i = 0; i < imageMaskData.length; i++) {
+            imageMaskData[i] = 0
           }
 
           for (let i = 0; i < _this.result.length; i++) {
-            imageData[_this.result[i]] = 255
+            imageMaskData[_this.result[i]] = 255
           }
           // 设置元素视口
           var viewport = cornerstone.getDefaultViewportForImage(
@@ -562,7 +557,7 @@ export default {
   mounted() {
 
     this.show(56);
-    this.showMask(1);
+    // this.showMask(1);
 
     // this.$refs.canvas.addEventListener('cornerstoneimagerendered', onImageRendered);
 
